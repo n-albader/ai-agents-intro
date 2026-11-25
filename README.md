@@ -97,3 +97,40 @@ The model connection can be tested using LiteLLM before integrating it with Goog
 ### Limitations
 
 The application requires an internet connection and a valid OpenAI API key. API usage may incur costs.
+
+## Explainer Agent
+
+The Explainer Agent is the first AI agent in this project.
+
+### Responsibilities
+
+- Explain programming topics.
+- Identify key concepts.
+- Provide simple code examples.
+
+### Model Configuration
+
+- Provider: OpenAI
+- Model: gpt-4o-mini
+- Framework: Google ADK
+- Connector: LiteLLM
+
+### Example
+
+Input:
+
+Python decorators
+
+Output:
+
+The agent generates a structured Markdown
+explanation containing:
+
+1. Explanation
+2. Key Concepts
+3. Simple Example
+
+### Run the Agent
+
+```bash
+python3 main.py "Python decorators"
