@@ -45,3 +45,55 @@ python3 main.py
 ## Reflection
 
 This project introduces AI agent development, tool integration, and multi-agent workflows using Python.
+
+## Model Environment Setup
+
+### Model Provider
+
+This project uses OpenAI API as its language model provider instead of running a local model through Ollama.
+
+### Architecture
+
+Google ADK → LiteLLM → OpenAI API
+
+### Python Environment
+
+Create a virtual environment:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+MODEL_PROVIDER=openai
+MODEL_NAME=openai/gpt-4o-mini
+OPENAI_API_KEY=your_openai_api_key
+```
+
+Never commit the `.env` file to GitHub.
+
+### Test the Model
+
+The model connection can be tested using LiteLLM before integrating it with Google ADK.
+
+### Model Configuration
+
+- Provider: OpenAI
+- Model: gpt-4o-mini
+- Connector: LiteLLM
+- Agent Framework: Google ADK
+
+### Limitations
+
+The application requires an internet connection and a valid OpenAI API key. API usage may incur costs.
