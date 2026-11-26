@@ -25,8 +25,6 @@ explainer_agent = Agent(
 
     ## Example
 
-    ## Practice Exercise
-
     ## Common Mistakes
 
     ## Review Comments
@@ -37,7 +35,6 @@ explainer_agent = Agent(
     - Use simple English.
     - Explain concepts for beginners.
     - Include a simple and working code example.
-    - Include one practice exercise.
     - Explain common mistakes related to the topic.
     - Add short review comments.
     - End with a concise summary.
