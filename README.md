@@ -183,3 +183,31 @@ Something is happening after the function is called.
 
 ```bash
 python3 main.py "Python decorators"
+
+## Markdown File Writer
+
+The project includes a file-writing tool in `tools/file_writer.py`.
+
+The `save_markdown_file()` function:
+- Accepts a file path and Markdown content.
+- Creates the parent directory if it does not exist.
+- Saves the content as a UTF-8 Markdown file.
+- Handles file-writing errors gracefully.
+
+### Output
+
+The Explainer Agent saves its generated explanation to:
+
+```text
+output/study_guide.md
+```
+
+### Usage
+
+Run the agent with a programming topic:
+
+```bash
+python3 main.py "Python decorators"
+```
+
+The generated Markdown explanation is saved automatically to `output/study_guide.md`.

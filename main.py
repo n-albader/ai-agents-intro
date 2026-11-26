@@ -1,3 +1,4 @@
+
 import asyncio
 import sys
 
@@ -6,6 +7,8 @@ from dotenv import load_dotenv
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
+
+from tools.file_writer import save_markdown_file
 
 load_dotenv()
 
@@ -17,7 +20,7 @@ USER_ID = "student"
 
 
 async def run_agent(topic):
-    """Run the explainer agent with a programming topic."""
+    """Run the explainer agent and save its output."""
 
     session_service = InMemorySessionService()
 
@@ -39,6 +42,8 @@ async def run_agent(topic):
 
     print(f"\nGenerating study explanation for: {topic}\n")
 
+    generated_text = []
+
     async for event in runner.run_async(
         user_id=USER_ID,
         session_id=session.id,
@@ -48,6 +53,19 @@ async def run_agent(topic):
             for part in event.content.parts:
                 if part.text:
                     print(part.text)
+                    generated_text.append(part.text)
+
+    if generated_text:
+        content = "\n".join(generated_text)
+
+        result = save_markdown_file(
+            "output/study_guide.md",
+            content
+        )
+
+        print(f"\n{result}")
+    else:
+        print("No text was generated. The file was not saved.")
 
 
 def main():
@@ -64,3 +82,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
