@@ -211,3 +211,28 @@ python3 main.py "Python decorators"
 ```
 
 The generated Markdown explanation is saved automatically to `output/study_guide.md`.
+
+## Markdown Validation Tool
+
+The project includes a validation tool in `tools/validation.py`.
+
+The `validate_required_sections()` function checks whether the generated Markdown study guide contains all eight required sections:
+
+- Topic
+- Simple Explanation
+- Key Concepts
+- Example
+- Practice Exercise
+- Common Mistakes
+- Review Comments
+- Final Summary
+
+The function returns:
+- `is_valid`: A Boolean indicating whether all required sections exist.
+- `missing_sections`: A list of sections that are missing.
+
+The validation tool runs after the Explainer Agent generates its response and before the Markdown file is saved.
+
+### Validation Result
+
+The program reports whether the generated study guide contains all required sections and identifies any missing headings.

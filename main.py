@@ -9,6 +9,7 @@ from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
 from tools.file_writer import save_markdown_file
+from tools.validation import validate_required_sections
 
 load_dotenv()
 
@@ -54,6 +55,32 @@ async def run_agent(topic):
                 if part.text:
                     print(part.text)
                     generated_text.append(part.text)
+
+    
+    if generated_text:
+        content = "\n".join(generated_text)
+
+        # Validate the generated Markdown.
+        validation = validate_required_sections(content)
+
+        if validation["is_valid"]:
+            print("\nValidation successful: all required sections exist.")
+        else:
+            print("\nValidation failed. Missing sections:")
+
+            for section in validation["missing_sections"]:
+                print(f"- {section}")
+
+        # Save the generated Markdown.
+        result = save_markdown_file(
+            "output/study_guide.md",
+            content
+        )
+
+        print(f"\n{result}")
+
+    else:
+        print("No text was generated. The file was not saved.")
 
     if generated_text:
         content = "\n".join(generated_text)
