@@ -156,24 +156,18 @@ The actual generated content may vary depending on the model response.
 
 ```text
 ai-agents-intro/
-│
 ├── agents/
-│   ├── __init__.py
 │   ├── explainer_agent.py
 │   ├── practice_designer_agent.py
-│   └── reviewer_agent.py
-│
+│   ├── reviewer_agent.py
+│   └── revision_agent.py
 ├── tools/
-│   ├── __init__.py
 │   ├── file_writer.py
 │   └── validation.py
-│
 ├── output/
-│   └── study_guide.md
-│
-├── data/
-│   └── topic_examples.json
-│
+│   ├── study_guide.md
+│   ├── study_guide_draft.md
+│   └── study_guide_final.md
 ├── config.py
 ├── main.py
 ├── requirements.txt
@@ -311,3 +305,43 @@ The generated technical content also needs human review because an AI-generated 
 - The project uses a sequential workflow, so each step waits for the previous agent to finish.
 - The model runs through the OpenAI API rather than locally on the computer. Local hardware is used to run the Python application, not to host the model.
 
+## One-Step Revision
+
+The project includes a one-step revision mechanism to improve the reliability of generated study guides.
+
+After the initial study guide is generated:
+
+1. The system saves the initial draft as `output/study_guide_draft.md`.
+2. The validation tool checks whether all required sections are present.
+3. If sections are missing, the Revision Agent is called once.
+4. The Revision Agent receives the original study guide and a list of missing sections.
+5. The revised guide is validated again.
+6. The final study guide is saved as `output/study_guide_final.md`.
+7. The system displays the final validation status.
+
+The Revision Agent is limited to one attempt. If the revised guide still misses required sections, the system reports a failed validation status.
+
+If the initial validation passes, the Revision Agent is skipped.
+
+### Output Files
+
+| File | Description |
+|---|---|
+| `study_guide_draft.md` | Initial study guide before revision |
+| `study_guide_final.md` | Final study guide after validation and optional revision |
+| `study_guide.md` | Output from the earlier workflow |
+
+### Validation
+
+The validation tool checks for these required sections:
+
+- Topic
+- Simple Explanation
+- Key Concepts
+- Example
+- Practice Exercise
+- Common Mistakes
+- Review Comments
+- Final Summary
+
+Validation checks the presence of Markdown headings, not the factual accuracy or quality of their content.

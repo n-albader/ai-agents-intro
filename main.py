@@ -13,11 +13,13 @@ from google.genai import types
 from agents.explainer_agent import explainer_agent
 from agents.practice_designer_agent import practice_designer_agent
 from agents.reviewer_agent import reviewer_agent
+from agents.revision_agent import revision_agent
 
 from tools.validation import validate_required_sections
 from tools.file_writer import save_markdown_file
 
 from config import validate_configuration
+
 
 APP_NAME = "ai_study_guide_generator"
 USER_ID = "student"
@@ -79,14 +81,15 @@ def assemble_final_markdown(draft, review):
         + "\n"
     )
 
+
+async def run_workflow(topic):
+    """Run the study guide workflow with one revision attempt."""
+
     if not topic.strip():
         raise ValueError("Topic cannot be empty.")
 
-async def run_workflow(topic):
-    """Run the complete sequential study guide workflow."""
-
     # Step 1: Explainer Agent
-    print("\n[1/7] Running Explainer Agent...")
+    print("\n[1/8] Running Explainer Agent...")
 
     explanation = await execute_agent(
         explainer_agent,
@@ -100,7 +103,7 @@ async def run_workflow(topic):
     print("Explainer Agent completed.")
 
     # Step 2: Practice Designer Agent
-    print("\n[2/7] Running Practice Designer Agent...")
+    print("\n[2/8] Running Practice Designer Agent...")
 
     practice_prompt = f"""
     Original Topic:
@@ -109,8 +112,7 @@ async def run_workflow(topic):
     Explanation from Explainer Agent:
     {explanation}
 
-    Create a beginner-friendly practice exercise based on
-    the topic and explanation.
+    Create a beginner-friendly practice exercise.
     """
 
     practice = await execute_agent(
@@ -125,7 +127,7 @@ async def run_workflow(topic):
     print("Practice Designer Agent completed.")
 
     # Step 3: Assemble the draft
-    print("\n[3/7] Assembling Draft Study Guide...")
+    print("\n[3/8] Assembling Draft Study Guide...")
 
     draft = assemble_draft(
         topic,
@@ -133,10 +135,8 @@ async def run_workflow(topic):
         practice
     )
 
-    print("Draft Study Guide assembled.")
-
     # Step 4: Reviewer Agent
-    print("\n[4/7] Running Reviewer Agent...")
+    print("\n[4/8] Running Reviewer Agent...")
 
     review = await execute_agent(
         reviewer_agent,
@@ -160,47 +160,111 @@ async def run_workflow(topic):
 
     print("Reviewer Agent completed.")
 
-    # Step 5: Assemble final Markdown
-    print("\n[5/7] Assembling Final Markdown...")
+    # Step 5: Assemble the first version
+    print("\n[5/8] Assembling Initial Study Guide...")
 
-    final_markdown = assemble_final_markdown(
+    draft_markdown = assemble_final_markdown(
         draft,
         review
     )
 
-    print("Final Markdown assembled.")
+    # Save the first draft
+    draft_result = save_markdown_file(
+        "output/study_guide_draft.md",
+        draft_markdown
+    )
 
-    
-    # Step 6: Validate the final Markdown
-    print("\n[6/7] Validating Study Guide...")
+    print(draft_result)
+
+    if not draft_result.startswith("File saved successfully:"):
+        print("Error: Could not save the initial draft.")
+        return
+
+    # Step 6: Validate the first draft
+    print("\n[6/8] Validating Initial Draft...")
 
     validation_result = validate_required_sections(
-        final_markdown
+        draft_markdown
     )
 
-    if validation_result["is_valid"]:
-        print("Validation successful: all required sections exist.")
-    else:
-        print("Validation failed. Missing sections:")
+    final_markdown = draft_markdown
 
-        for section in validation_result["missing_sections"]:
+    # Step 7: One revision attempt if needed
+    if not validation_result["is_valid"]:
+
+        missing_sections = validation_result["missing_sections"]
+
+        print("\nValidation failed. Missing sections:")
+
+        for section in missing_sections:
             print(f"- {section}")
 
-        print(
-            "The generated guide will still be saved "
-            "so you can inspect and fix it."
+        print("\nRunning Revision Agent (one attempt only)...")
+
+        revision_prompt = f"""
+        Revise the following study guide.
+
+        Missing required sections:
+        {", ".join(missing_sections)}
+
+        Add the missing sections while preserving
+        the existing useful content.
+
+        ORIGINAL STUDY GUIDE:
+
+        {draft_markdown}
+        """
+
+        revised_markdown = await execute_agent(
+            revision_agent,
+            revision_prompt
         )
 
-    # Step 7: Save Markdown file
-    print("\n[7/7] Saving Study Guide...")
+        if revised_markdown:
+            final_markdown = revised_markdown
+            print("Revision completed.")
+        else:
+            print("Revision Agent returned no content.")
+            print("Keeping the original draft.")
 
-    result = save_markdown_file(
-        "output/study_guide.md",
+    else:
+        print("Initial validation passed. No revision needed.")
+
+    # Step 8: Final validation and saving
+    print("\n[7/8] Running Final Validation...")
+
+    final_validation = validate_required_sections(
         final_markdown
     )
 
-    print(result)
+    if final_validation["is_valid"]:
+        print("Final validation PASSED.")
+    else:
+        print("Final validation FAILED.")
 
+        print("Still missing:")
+
+        for section in final_validation["missing_sections"]:
+            print(f"- {section}")
+
+    print("\n[8/8] Saving Final Study Guide...")
+
+    final_result = save_markdown_file(
+        "output/study_guide_final.md",
+        final_markdown
+    )
+
+    print(final_result)
+
+    if not final_result.startswith("File saved successfully:"):
+        print("Error: Could not save the final study guide.")
+        return
+
+    print("\nWorkflow completed.")
+    print(
+        f"Final validation status: "
+        f"{'PASSED' if final_validation['is_valid'] else 'FAILED'}"
+    )
 
 def main():
     """Read the topic, validate configuration, and start the workflow."""
