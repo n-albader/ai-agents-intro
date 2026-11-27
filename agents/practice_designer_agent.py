@@ -1,12 +1,12 @@
 
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
-
+from config import MODEL_NAME
 
 practice_designer_agent = Agent(
     name="practice_designer_agent",
     model=LiteLlm(
-        model="openai/gpt-4o-mini"
+        model=MODEL_NAME
     ),
     description="Creates beginner-friendly programming exercises.",
     instruction="""

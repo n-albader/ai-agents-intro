@@ -11,4 +11,7 @@ def save_markdown_file(file_path: str, content: str) -> str:
         return f"File saved successfully: {path}"
 
     except OSError as error:
-        return f"Error saving file: {error}"
+        return (
+            f"Error saving file '{path}': {error}. "
+            "Check the file path and folder permissions."
+        )

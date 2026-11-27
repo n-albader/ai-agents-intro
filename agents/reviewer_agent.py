@@ -1,12 +1,12 @@
 
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
-
+from config import MODEL_NAME
 
 reviewer_agent = Agent(
     name="reviewer_agent",
     model=LiteLlm(
-        model="openai/gpt-4o-mini"
+        model=MODEL_NAME
     ),
     description="Reviews study guides and provides constructive feedback.",
     instruction="""

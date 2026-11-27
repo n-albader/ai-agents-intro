@@ -309,3 +309,93 @@ python3 main.py "Python decorators"
 ```
 
 The final Markdown study guide is saved in the `output/` directory.
+
+
+## Configuration
+
+The project supports two model providers through LiteLLM:
+
+### OpenAI
+
+Add the following settings to your `.env` file:
+
+```env
+MODEL_PROVIDER=openai
+MODEL_NAME=openai/gpt-4o-mini
+OPENAI_API_KEY=your_api_key_here
+```
+
+### Ollama
+
+Make sure Ollama is installed and running, then download a model:
+
+```bash
+ollama pull llama3.2
+```
+
+Configure `.env`:
+
+```env
+MODEL_PROVIDER=ollama
+MODEL_NAME=ollama_chat/llama3.2
+OLLAMA_API_BASE=http://localhost:11434
+```
+
+Never commit your `.env` file or expose API keys.
+
+## Troubleshooting
+
+### Empty Topic
+
+**Problem:** No topic was provided.
+
+**Solution:** Run the program with a topic:
+
+```bash
+python3 main.py "Python decorators"
+```
+
+### Missing OpenAI API Key
+
+**Problem:** `OPENAI_API_KEY is missing`.
+
+**Solution:** Add a valid API key to your `.env` file.
+
+### Ollama Is Not Running
+
+**Problem:** Cannot connect to Ollama.
+
+**Solution:** Start the Ollama application or run:
+
+```bash
+ollama serve
+```
+
+### Ollama Model Is Not Available
+
+**Problem:** The requested model is not installed.
+
+**Solution:** Download it:
+
+```bash
+ollama pull llama3.2
+```
+
+### File-Writing Error
+
+**Problem:** The study guide cannot be saved.
+
+**Solution:** Check the output folder path and file permissions.
+
+### Validation Failure
+
+**Problem:** One or more required Markdown sections are missing.
+
+**Solution:** Check the missing section names in the terminal output and inspect:
+
+```bash
+cat output/study_guide.md
+```
+
+The project saves the generated guide even when validation fails, so it can be inspected and corrected.
+

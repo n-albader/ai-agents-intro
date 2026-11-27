@@ -17,6 +17,8 @@ from agents.reviewer_agent import reviewer_agent
 from tools.validation import validate_required_sections
 from tools.file_writer import save_markdown_file
 
+from config import validate_configuration
+
 APP_NAME = "ai_study_guide_generator"
 USER_ID = "student"
 
@@ -76,6 +78,9 @@ def assemble_final_markdown(draft, review):
         + review
         + "\n"
     )
+
+    if not topic.strip():
+        raise ValueError("Topic cannot be empty.")
 
 async def run_workflow(topic):
     """Run the complete sequential study guide workflow."""
@@ -165,6 +170,7 @@ async def run_workflow(topic):
 
     print("Final Markdown assembled.")
 
+    
     # Step 6: Validate the final Markdown
     print("\n[6/7] Validating Study Guide...")
 
@@ -180,6 +186,11 @@ async def run_workflow(topic):
         for section in validation_result["missing_sections"]:
             print(f"- {section}")
 
+        print(
+            "The generated guide will still be saved "
+            "so you can inspect and fix it."
+        )
+
     # Step 7: Save Markdown file
     print("\n[7/7] Saving Study Guide...")
 
@@ -190,18 +201,32 @@ async def run_workflow(topic):
 
     print(result)
 
-def main():
-    """Read the topic and start the workflow."""
 
-    if len(sys.argv) < 2:
-        print('Usage: python3 main.py "Programming Topic"')
+def main():
+    """Read the topic, validate configuration, and start the workflow."""
+
+    topic = " ".join(sys.argv[1:]).strip()
+
+    if not topic:
+        print('Error: Topic cannot be empty.')
+        print('Usage: python3 main.py "Python decorators"')
         sys.exit(1)
 
-    topic = " ".join(sys.argv[1:])
+    try:
+        validate_configuration()
 
-    print(f"\nStarting Study Guide Workflow for: {topic}")
+        print(f"\nStarting Study Guide Workflow for: {topic}")
 
-    asyncio.run(run_workflow(topic))
+        asyncio.run(run_workflow(topic))
+
+    except (ValueError, ConnectionError) as error:
+        print(f"\nConfiguration or input error: {error}")
+        sys.exit(1)
+
+    except Exception as error:
+        print(f"\nWorkflow error: {error}")
+        raise
+
 
 if __name__ == "__main__":
     main()
