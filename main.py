@@ -12,6 +12,7 @@ from tools.file_writer import save_markdown_file
 from tools.validation import validate_required_sections
 
 from agents.practice_designer_agent import practice_designer_agent
+from agents.reviewer_agent import reviewer_agent
 
 load_dotenv()
 
@@ -68,6 +69,51 @@ async def run_practice_agent(topic, explanation):
     return "\n".join(practice_text)
 
 
+async def run_reviewer_agent(draft):
+    """Review the current study guide draft."""
+
+    session_service = InMemorySessionService()
+
+    session = await session_service.create_session(
+        app_name=APP_NAME,
+        user_id=USER_ID
+    )
+
+    runner = Runner(
+        agent=reviewer_agent,
+        app_name=APP_NAME,
+        session_service=session_service
+    )
+
+    prompt = f"""
+    Review the following study guide draft.
+
+    Do not rewrite it. Provide review comments only.
+
+    STUDY GUIDE DRAFT:
+
+    {draft}
+    """
+
+    message = types.Content(
+        role="user",
+        parts=[types.Part(text=prompt)]
+    )
+
+    review_text = []
+
+    async for event in runner.run_async(
+        user_id=USER_ID,
+        session_id=session.id,
+        new_message=message
+    ):
+        if event.is_final_response() and event.content:
+            for part in event.content.parts:
+                if part.text:
+                    review_text.append(part.text)
+
+    return "\n".join(review_text)
+
 async def run_agent(topic):
     """Run the explainer agent and save its output."""
 
@@ -123,6 +169,19 @@ async def run_agent(topic):
             + "\n\n"
             + practice_output
         )
+
+        
+        print("\nReviewing the study guide...\n")
+
+        review_output = await run_reviewer_agent(content)
+
+        print(review_output)
+
+        content += (
+         "\n\n## Review Comments\n\n"
+          + review_output
+     )
+
 
         validation = validate_required_sections(content)
 
