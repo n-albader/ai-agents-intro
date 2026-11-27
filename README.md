@@ -286,3 +286,26 @@ The Reviewer Agent does not rewrite the entire study guide.
 4. Review comments are added to the final Markdown document.
 5. The Validation Tool checks the required sections.
 6. The final study guide is saved to `output/study_guide.md`.
+
+## Sequential Workflow
+
+The project uses a sequential multi-agent workflow to generate programming study guides.
+
+### Workflow Steps
+
+1. **Topic Input:** The user provides a programming topic.
+2. **Explainer Agent:** Generates the explanation, key concepts, example, common mistakes, and final summary.
+3. **Practice Designer Agent:** Receives the original topic and explanation to create a beginner-friendly exercise with expected input, expected output, and hints.
+4. **Draft Study Guide:** Combines the topic, explanation, and practice exercise.
+5. **Reviewer Agent:** Reviews the draft and provides missing information, unclear explanations, improvement suggestions, and a recommendation.
+6. **Final Markdown Assembly:** Adds the review comments to the draft.
+7. **Validation Tool:** Checks whether all required sections exist.
+8. **Save Markdown Tool:** Saves the final study guide to `output/study_guide.md`.
+
+### Run the Workflow
+
+```bash
+python3 main.py "Python decorators"
+```
+
+The final Markdown study guide is saved in the `output/` directory.

@@ -27,8 +27,6 @@ explainer_agent = Agent(
 
     ## Common Mistakes
 
-    ## Review Comments
-
     ## Final Summary
 
     Requirements:
@@ -41,5 +39,6 @@ explainer_agent = Agent(
     - Do not omit any required section.
     - Use Markdown formatting.
     """
-)
+
+    )
 
